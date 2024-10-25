@@ -24,17 +24,15 @@ void primes() {
         dup(p[1]);
         close(p[0]);
         close(p[1]);
-        int tmpnum = 0;
-        while(read(0, (void*)&tmpnum, sizeof(tmpnum))) {
-            if(tmpnum % num != 0) {
-                write(1, (void*)&tmpnum, sizeof(tmpnum));
+        int tmp = 0;
+        while(read(0, (void*)&tmp, sizeof(tmp))) {
+            if(tmp % num != 0) {
+                write(1, (void*)&tmp, sizeof(tmp));
             }
         }
         close(1);
         wait(&pid);
-    }
-
-    
+    }   
 }
 
 int main(int argc, char* argv[]) {

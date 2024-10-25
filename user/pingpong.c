@@ -13,7 +13,7 @@ void main(){
         write(p[1], buf, 1); 
         exit(0);
     } else {  
-        char buf[1] = {'a'};
+        char buf[1] = {'p'};
         write(p[1], buf, 1);  
         wait(0);             
         read(p[0], buf, 1);  
