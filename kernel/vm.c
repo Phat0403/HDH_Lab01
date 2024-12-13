@@ -495,7 +495,7 @@ void _pteprint(pagetable_t pagetable, int level) {
         if(i != level) printf(" ");
       }
 
-      printf("%d: pte %ld pa %ld\n", i, pte, child);
+      printf("%d: pte %p pa %p\n", i, (void *)pte, (void *)child);
       if((pte & (PTE_R | PTE_W | PTE_X)) == 0)
           _pteprint((pagetable_t)child, level + 1);
     } 
