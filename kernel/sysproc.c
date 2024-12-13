@@ -101,6 +101,50 @@ sys_kpgtbl(void)
 }
 #endif
 
+#ifdef LAB_PGTBL
+uint64
+sys_pgaccess(void) {
+    uint64 start_addr;
+    int num_pages;
+    uint64 user_bitmask;
+    uint64 bitmask = 0;
+
+
+    argaddr(0, &start_addr);
+    argint(1, &num_pages);
+    argaddr(2, &user_bitmask);
+
+
+    if (num_pages > 64) {
+        return -1;
+    }
+
+    for (int i = 0; i < num_pages; i++) {
+        pte_t *pte;
+        uint64 va = start_addr + i * PGSIZE;
+
+        pte = walk(myproc()->pagetable, va, 0);
+        if (pte == 0 || (*pte & PTE_V) == 0) {
+            printf("Invalid page\n");
+            continue; 
+        }
+
+        // Check the PTE_A bit
+        if (*pte & PTE_A) {
+            bitmask |= (1L << i); // Set the corresponding bit in the bitmask
+            *pte &= ~PTE_A;      // Clear the PTE_A bit
+        }
+    }
+
+    // Copy the bitmask to user space
+    if (copyout(myproc()->pagetable, user_bitmask, (char *)&bitmask, sizeof(bitmask)) < 0) {
+        return -1;
+    }
+
+    return 0;
+}
+#endif
+
 
 uint64
 sys_kill(void)

@@ -36,6 +36,7 @@ int recv(uint32, uint32*, uint32*, char *, uint32);
 int ugetpid(void);
 uint64 pgpte(void*);
 void kpgtbl(void);
+uint64 pgaccess(void*, int, void*);
 #endif
 
 // ulib.c

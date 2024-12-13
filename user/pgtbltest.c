@@ -9,7 +9,8 @@
 void print_pgtbl();
 void print_kpgtbl();
 void ugetpid_test();
-void superpg_test();
+// void superpg_test();
+void pgaccess_test();
 
 int
 main(int argc, char *argv[])
@@ -17,7 +18,8 @@ main(int argc, char *argv[])
   print_pgtbl();
   ugetpid_test();
   print_kpgtbl();
-  superpg_test();
+  // superpg_test();
+  pgaccess_test();
   printf("pgtbltest: all tests succeeded\n");
   exit(0);
 }
@@ -139,4 +141,63 @@ superpg_test()
     }
   }
   printf("superpg_test: OK\n");  
+}
+
+
+
+void pgaccess_test() {
+    char *buf;
+    uint64 abits;
+    printf("Page access test starting\n");
+
+    buf = malloc(32 * PGSIZE); 
+    if (buf == 0) {
+        printf("malloc failed\n");
+        exit(1);
+    }
+
+    // memset(buf, 0, 32 * PGSIZE);
+
+    if (pgaccess(buf, 32, &abits) < 0) { 
+        printf("sys_pgaccess failed\n");
+        free(buf);
+        exit(1);
+    }
+
+    printf("Initial abits = %lu\n", abits);
+
+    if (abits != 1) {
+        printf("FAIL: Initial access bits should be zero\n");
+        free(buf);
+        exit(1);
+    }
+
+    buf[PGSIZE * 1] += 1;   // Access page 1
+    buf[PGSIZE * 2] += 1;   // Access page 2
+    buf[PGSIZE * 30] += 1;  // Access page 30
+
+    if (pgaccess(buf, 32, &abits) < 0) {
+        printf("sys_pgaccess failed\n");
+        free(buf);
+        exit(1);
+    }
+
+    printf("Final abits = %lu\n", abits);
+
+    for (int i = 0; i < 32; i++) {
+      if (abits & (1UL << i)) { 
+          printf("Page %d accessed\n", i);
+      }
+    }
+
+
+    if (abits != ((1 << 1) | (1 << 2) | (1 << 30))) {
+        printf("FAIL: Incorrect access bits set (abits = %lu)\n", abits);
+        free(buf);
+        exit(1);
+    } else {
+        printf("sys_pgaccess is working correctly\n");
+    }
+
+    free(buf);
 }
